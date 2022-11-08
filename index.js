@@ -28,11 +28,18 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const serviceCollection = client.db('bandaid-dental').collection('services');
+        const reviewsCollection = client.db('bandaid-reviews').collection('reviews');
 
         app.get('/services', async (req, res) => {
             const query = {};
             const cursor = serviceCollection.find(query);
             const services = await cursor.toArray();
+            res.send(services);
+        });
+        app.get('/home-service', async (req, res) => {
+            const query = {};
+            const cursor = serviceCollection.find(query);
+            const services = await cursor.limit(3).toArray();
             res.send(services);
         });
         app.get('/services/:id', async (req, res) => {
@@ -45,6 +52,53 @@ async function run() {
         app.post('/services', async (req, res) => {
             const service = req.body;
             const result = await serviceCollection.insertOne(service);
+            res.send(result);
+        });
+
+        app.get('/my-reviews', async (req, res) => {
+            let query = {};
+            if (req.query.email) {
+                query = {
+                    email: req.query.email
+                };
+            }
+            const cursor = reviewsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.get('/my-reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectID(id) };
+            const result = await reviewsCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put('/my-reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectID(id) };
+            const review = req.body;
+            const option = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    rewiewDetails: review.rewiewDetails,
+                    rating: review.rating
+                }
+            };
+            const result = await reviewsCollection.updateOne(filter, updatedDoc, option);
+            res.send(result);
+        });
+
+        app.post('/my-reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review);
+            res.send(result);
+        });
+
+        app.delete('/my-reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectID(id) };
+            const result = await reviewsCollection.deleteOne(query);
             res.send(result);
         });
     }
