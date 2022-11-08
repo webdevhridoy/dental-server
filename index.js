@@ -29,7 +29,18 @@ async function run() {
     try {
         const serviceCollection = client.db('bandaid-dental').collection('services');
 
-
+        app.get('/services', async (req, res) => {
+            const query = {};
+            const cursor = serviceCollection.find(query);
+            const services = await cursor.toArray();
+            res.send(services);
+        });
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectID(id) };
+            const service = await serviceCollection.findOne(query);
+            res.send(service);
+        });
 
         app.post('/services', async (req, res) => {
             const service = req.body;
