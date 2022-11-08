@@ -1,7 +1,9 @@
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
 const cors = require('cors');
+const { ObjectID } = require('bson');
 require('dotenv').config();
 
 //middleware
@@ -17,6 +19,31 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
+
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.xetzjun.mongodb.net/?retryWrites=true&w=majority`;
+
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+async function run() {
+    try {
+        const serviceCollection = client.db('bandaid-dental').collection('services');
+
+
+
+        app.post('/services', async (req, res) => {
+            const service = req.body;
+            const result = await serviceCollection.insertOne(service);
+            res.send(result);
+        });
+    }
+    finally {
+
+    }
+
+}
+run().catch(error => console.error(erro));
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
