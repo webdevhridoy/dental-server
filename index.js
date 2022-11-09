@@ -94,11 +94,11 @@ async function run() {
                 query = {
                     reviewId: req.query.reviewId
                 };
-                const cursor = reviewsCollection.find(query).sort({ time: -1, time: 1 });
+                const cursor = reviewsCollection.find(query).sort({ time: 1, time: -1 });
                 const result = await cursor.toArray();
                 return res.send(result);
             }
-            const cursor = reviewsCollection.find(query);
+            const cursor = reviewsCollection.find(query).sort({ time: 1, time: -1 });
             const result = await cursor.toArray();
             res.send(result);
         });
