@@ -5,6 +5,7 @@ const port = process.env.PORT || 5000;
 const cors = require('cors');
 const { ObjectID } = require('bson');
 require('dotenv').config();
+const jwt = require('jsonwebtoken');
 
 //middleware
 const corsConfig = {
@@ -49,6 +50,14 @@ async function run() {
             res.send(service);
         });
 
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectID(id) };
+            const service = await reviewsCollection.findOne(query);
+            res.send(service);
+        });
+
+
         app.post('/services', async (req, res) => {
             const service = req.body;
             const result = await serviceCollection.insertOne(service);
@@ -57,10 +66,15 @@ async function run() {
 
         app.get('/my-reviews', async (req, res) => {
             let query = {};
-            if (req.query.email) {
+            // console.log(query.reviewId);
+            if (req.query.reviewId) {
                 query = {
-                    email: req.query.email
+                    reviewId: req.query.reviewId
+
                 };
+                const cursor = reviewsCollection.find(query);
+                const result = await cursor.toArray();
+                return res.send(result);
             }
             const cursor = reviewsCollection.find(query);
             const result = await cursor.toArray();
@@ -107,7 +121,7 @@ async function run() {
     }
 
 }
-run().catch(error => console.error(erro));
+run().catch(error => console.error(error));
 
 
 app.listen(port, () => {
