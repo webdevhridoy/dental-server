@@ -57,13 +57,13 @@ async function run() {
 
         app.get('/services', async (req, res) => {
             const query = {};
-            const cursor = serviceCollection.find(query).sort({ time: 1, time: -1 });;
+            const cursor = serviceCollection.find(query).sort({ current: -1 });
             const services = await cursor.toArray();
             res.send(services);
         });
         app.get('/home-service', async (req, res) => {
             const query = {};
-            const cursor = serviceCollection.find(query).sort({ time: 1, time: -1 });
+            const cursor = serviceCollection.find(query).sort({ current: -1 });
             const services = await cursor.limit(3).toArray();
             res.send(services);
         });
@@ -94,11 +94,11 @@ async function run() {
                 query = {
                     reviewId: req.query.reviewId
                 };
-                const cursor = reviewsCollection.find(query).sort({ time: 1, time: -1 });
+                const cursor = reviewsCollection.find(query).sort({ current: -1 });
                 const result = await cursor.toArray();
                 return res.send(result);
             }
-            const cursor = reviewsCollection.find(query).sort({ time: 1, time: -1 });
+            const cursor = reviewsCollection.find(query).sort({ current: -1 });
             const result = await cursor.toArray();
             res.send(result);
         });
